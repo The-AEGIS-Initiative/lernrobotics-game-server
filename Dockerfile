@@ -1,13 +1,9 @@
-FROM python:3.8.1-alpine3.11
-
-# Install native libraries, required for numpy
-RUN apk add --update curl gcc g++
-RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
+FROM kevinkqi/python-numpy-alpine:latest
 
 COPY requirements.txt /
 
 #RUN pip install -r /requirements.txt
-RUN pip install tornado numpy
+RUN pip install tornado
 
 COPY . /app
 WORKDIR /app
