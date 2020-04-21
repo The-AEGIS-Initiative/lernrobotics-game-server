@@ -12,7 +12,8 @@ definitions:
               - pip
               - sonar
               script:
-              - pip install -r requirements.txt
+              - pip install tornado
+              - pip install numpy
               - pipe: sonarsource/sonarcloud-scan:1.0.1
       - step: &check-quality-gate-sonarcloud
               name: Check the Quality Gate on SonarCloud
