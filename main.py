@@ -2,6 +2,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
+import os
 import json
 import sys
 import traceback
@@ -9,12 +10,12 @@ import traceback
 # Catch SyntaxError. Store err until it is sent to unity client.
 syntax_error = ""
 try:
-    from game.user_code import UserRobot
+    from game.user_code import Robobot
 except SyntaxError as err:
     print(traceback.format_exc())
     syntax_error = err
 
-from game.sensor_data import SensorData
+from game.robot_data import RobotData
 from logger import Logger
 
 class MainHandler(tornado.web.RequestHandler):
@@ -52,8 +53,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             tornado.ioloop.IOLoop.instance().stop()
         else:
             try:
-                print("Attempting to start UserRobot")
-                self.user_robot = UserRobot()
+                print("Attempting to start RobobotCore")
+                self.user_robot = Robobot()
                 print("WebSocket opened")
             except Exception as err:
                 print(traceback.format_exc())
@@ -71,7 +72,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         """
         json_string = message.decode("utf-8")
         json_object = json.loads(json_string)
-        game_state = SensorData(json_object)
+        game_state = RobotData(json_object)
         self.write_message(json.dumps(self.get_user_action(game_state, self.user_robot)), binary = True)
 
     def on_close(self):
@@ -85,7 +86,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         Parameters
         ----------
         game_state : GameState
-        user_robot : UserRobot
+        user_robot : RobobotCore
 
         Returns
         -------
@@ -94,7 +95,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         """
 
         # Add new sensor data to user_robot
-        user_robot.sensor_data_history += [game_state]
+        user_robot.robot_data_history += [game_state]
 
 
         # Redirect stdout to Logger object
@@ -103,8 +104,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         # Execute user code. 
         # Stdout will be logged to logs variable
         try:
-            if(len(user_robot.sensor_data_history)>=3):
-                if(len(user_robot.sensor_data_history)==3):
+            if(len(user_robot.robot_data_history)>=3):
+                if(len(user_robot.robot_data_history)==3):
                     user_robot.start()
                 user_robot.update()
         except Exception as err:
@@ -132,5 +133,13 @@ def make_app():
 
 if __name__ == "__main__":
     app = make_app()
-    app.listen(8080)
+
+    # In localhost dev environment
+    if(os.environ['aegiscert']=='' or os.environ['aegiscert']== None):
+        app.listen(8080)
+    else: # In hosted development or production environment
+        app.listen(8080, ssl_options={
+            'certfile': os.path.join("./", "aegisinitiative_cert.crt"),
+            'keyfile': os.path.join('./', 'aegisinitiative_key.key')
+        })
     tornado.ioloop.IOLoop.current().start()
