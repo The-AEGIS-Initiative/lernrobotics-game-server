@@ -1,6 +1,6 @@
 import numpy as np
 
-class SensorData:
+class RobotData:
 	"""
 	Stores sensor data at a particular frame
 
@@ -15,48 +15,81 @@ class SensorData:
 	right_dir : tuple
 		(x,y) unit vector indicating the right side direction of the robot
 	delta_time : float
-		timestep between this frame and the last frame in seconds
-	wall_sensor : int[]
+		timestep between current frame and the previous frame in seconds
+	sensor : int[]
 		radial distances from the robot from 0 to 360 deg with 1 deg steps
-		degrees are measured clockwise from the forward direction of the robot
+		degrees are measured clockwise from the positive vertical axis
 		ex) sensor_array[90] gives the radial distance to any object located at
 		the right side of the robot
+
 
 	"""
 	def __init__(self, position, rotation, forward_dir, right_dir, sensor_array, delta_time):
 		self.position = position
 		self.rotation = rotation
 		self.forward_dir = forward_dir
-		self.right_dir = forward_dir
-		self.wall_sensor = sensor_array
+		self.right_dir = right_dir
+		self.object_sensor = sensor_array
 		self.delta_time = delta_time
 
 	def __init__(self, json_object):
-
 		self.position = np.fromiter(json_object["player_position"].values(), dtype = float)
 		self.rotation = json_object["player_heading"]
 		self.forward_dir = np.fromiter(json_object["player_forward"].values(), dtype = float)
 		self.right_dir = np.fromiter(json_object["player_right"].values(), dtype = float)
-		self.wall_sensor = np.array(json_object["wall_sensor_data"]["distance_array"])
 		self.object_sensor = self.formatObjectSensorData(json_object)
 		self.delta_time = json_object["delta_time"]
+
+	def position():
+		"""
+		Return the position of the player in the currently accessed data point.
+		"""
+		return self.position
+
+	def sensor(heading):
+		"""
+		Return the distance of any object in the specified angle from the forward direction of the user.
+
+		Parameters
+		----------
+		heading 
+			n int
+			Angle representing line of sight measured clockwise from the positive vertical axis.
+			i.e. Given any rotation of the robot, 0 degrees refers to the positive vertical axis.
+		"""
+		return self.object_sensor[heading % 360]
+
+	def delta_time():
+		"""
+		Return the amount of time passed between the previous and the current render frame.
+		"""
+		return self.delta_time
 
 	def __repr__(self):
 		return (f"Position: {self.position}\n"
 				f"Rotation: {self.rotation}\n"
 				f"F Dir: {self.forward_dir}\n"
 				f"Right Dir: {self.right_dir}\n"
-				f"WallSensor: {self.wall_sensor}\n"
 				f"ObjectSensor: {self.object_sensor}\n")
 
+	#def formatObjectSensorData(self, json_object):
+	#	detected_objects = json_object["object_sensor_data"]["detected_objects"]
+
+	#	object_data = []
+	#	for object in detected_objects:
+	#		object_data += [GameObject(object)]
+
+	#	return object_data
+
 	def formatObjectSensorData(self, json_object):
-		detected_objects = json_object["object_sensor_data"]["detected_objects"]
-
-		object_data = []
-		for object in detected_objects:
-			object_data += [GameObject(object)]
-
-		return object_data
+		vector2_array = np.array(json_object["object_sensor_data"]["detected_objects"])
+		
+		res = []
+		for object_info in vector2_array:
+			pos = np.fromiter(object_info['position'].values(), dtype=float)
+			name = object_info['name']
+			res += [{'position': pos, 'name': name}]
+		return res
 
 class GameObject():
 	def __init__(self, object_data_json):

@@ -31,7 +31,3 @@ class AEGISCore:
             Desired acceleration. 1 acceleration = 1 units per squared second
         """
         AEGISCore.x_acceleration, AEGISCore.y_acceleration = acceleration
-
-
-    def robot_data_history(self, time):
-        return AEGISCore.robot_data_history[time]

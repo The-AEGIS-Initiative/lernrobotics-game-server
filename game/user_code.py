@@ -1,37 +1,55 @@
-class AEGISCore:
-    x_acceleration = 0
-    y_acceleration = 0
-    robot_data_history = []
-    """
-    Defines the API available to user when programming robot
+from game.game_api import AEGISCore
+import numpy as np
 
-    Variables
-    ---------
-    x_acceleration
-        current acceleration in x direction
-    y_acceleration
-        current acceleration in y_direction
-    robot_data_history
-        array of all sensor_data objects
+class Robobot(AEGISCore):
 
-    Methods
-    -------
-    set_acceleration
-        Sets desired acceleration for robot
-    """
+    def start(self):
+        print("Hello")
 
-    def set_acceleration(self, acceleration):
-        """
-        Sets the acceleration of the left wheel
+        self.state = DecisionState()
 
-        Parameters
-        ----------
-        acceleration
-            (x,y) tuple
-            Desired acceleration. 1 acceleration = 1 units per squared second
-        """
-        AEGISCore.x_acceleration, AEGISCore.y_acceleration = acceleration
+    def update(self):
+        self.set_acceleration((0.2, 1))
+        #self.state.next()
+
+class MoveState(AEGISCore):
+    def __init__(self, target_pos):
+        self.target_pos = target_pos
+   
+    def next(self):
+        cur_pos = self.robot_data_history[-1].position
+
+        if(np.linalg.norm(self.target_pos - cur_pos) < 1):
+            print('transitioning to DecisionState')
+            return DecisionState()
+        else:
+            print(self.target_pos - cur_pos)
+            self.set_acceleration(self.target_pos - cur_pos)
+            return MoveState(self.target_pos)
+
+class DecisionState(AEGISCore):
+
+    def next(self):
+        next_pos = self.next_target_pos()
+        print('transitioning to MoveState')
+        return MoveState(next_pos)
+
+    def next_target_pos(self):
+        cur_data = self.robot_data_history[-1]
+        sensor = cur_data.sensor
+        cur_pos = cur_data.position
+
+        nesw = [np.linalg.norm(np.subtract(sensor[i].name, cur_pos)) for i in (0,90,180,270)]
+
+        return sensor[(0, 90, 180, 270)[np.argmax(nesw)]]
 
 
-    def robot_data_history(self, time):
-        return AEGISCore.robot_data_history[time]
+
+
+
+
+
+
+
+
+

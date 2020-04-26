@@ -135,9 +135,14 @@ if __name__ == "__main__":
     app = make_app()
 
     # In localhost dev environment
-    if(os.environ['aegiscert']=='' or os.environ['aegiscert']== None):
+    if((not 'cert' in os.environ.keys()) or len(os.environ['cert'])<20):
         app.listen(8080)
     else: # In hosted development or production environment
+        with open("./cert.crt", 'w') as f:
+            f.write(os.environ['cert'])
+        with open('./cert.key', 'w') as f:
+            f.write(os.environ['certkey'])
+
         app.listen(8080, ssl_options={
             'certfile': os.path.join("./", "aegisinitiative_cert.crt"),
             'keyfile': os.path.join('./', 'aegisinitiative_key.key')
