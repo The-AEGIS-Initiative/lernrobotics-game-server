@@ -144,7 +144,7 @@ if __name__ == "__main__":
             f.write(os.environ['certkey'])
 
         app.listen(8080, ssl_options={
-            'certfile': os.path.join("./", "aegisinitiative_cert.crt"),
-            'keyfile': os.path.join('./', 'aegisinitiative_key.key')
+            'certfile': os.path.join("./", "cert.crt"),
+            'keyfile': os.path.join('./', 'cert.key')
         })
     tornado.ioloop.IOLoop.current().start()
