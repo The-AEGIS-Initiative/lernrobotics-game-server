@@ -15,7 +15,13 @@ definitions:
               - docker build -t $IMAGE_NAME .
               - docker push $IMAGE_NAME
 
+      - step: &update-back-end
+              name: Pull new game server on back-end
+              script:
+              - curl -X GET "https://development-robobot.aegisinitiative.io/updateGameServer"
+
 pipelines:       
   branches:
     master:
       - step: *build-and-publish-docker-image
+      - step: *update-back-end
