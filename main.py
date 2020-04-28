@@ -7,6 +7,10 @@ import json
 import sys
 import traceback
 
+# Save user code to file
+with open("./game/user_code.py", 'w') as f:
+    f.write(os.environ['code'])
+
 # Catch SyntaxError. Store err until it is sent to unity client.
 syntax_error = ""
 try:
@@ -100,7 +104,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
         # Redirect stdout to Logger object
         sys.stdout = Logger(self.logs)
-     
+        
         # Execute user code. 
         # Stdout will be logged to logs variable
         try:
