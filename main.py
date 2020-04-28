@@ -8,8 +8,12 @@ import sys
 import traceback
 
 # Save user code to file
-with open("./game/user_code.py", 'w') as f:
-    f.write(os.environ['code'])
+
+if('code' in os.environ.keys()):
+    with open("./game/user_code.py", 'w') as f:
+        f.write(os.environ['code'])
+else:
+    print("using default test code")
 
 # Catch SyntaxError. Store err until it is sent to unity client.
 syntax_error = ""
