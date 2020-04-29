@@ -147,9 +147,9 @@ if __name__ == "__main__":
         app.listen(8080)
     else: # In hosted development or production environment
         with open("./cert.crt", 'w') as f:
-            f.write(os.environ['cert'])
+            f.write(os.environ['cert'].replace('\\n ', '\n'))
         with open('./cert.key', 'w') as f:
-            f.write(os.environ['certkey'])
+            f.write(os.environ['certkey'].replace('\\n ', '\n'))
 
         app.listen(8080, ssl_options={
             'certfile': os.path.join("./", "cert.crt"),
