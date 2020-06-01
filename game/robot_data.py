@@ -40,13 +40,13 @@ class RobotData:
 		self.object_sensor = self.formatObjectSensorData(json_object)
 		self.delta_time = json_object["delta_time"]
 
-	def position():
+	def position(self):
 		"""
 		Return the position of the player in the currently accessed data point.
 		"""
 		return self.position
 
-	def sensor(heading):
+	def sensor(self, heading):
 		"""
 		Return the distance of any object in the specified angle from the forward direction of the user.
 
@@ -59,7 +59,7 @@ class RobotData:
 		"""
 		return self.object_sensor[heading % 360]
 
-	def delta_time():
+	def delta_time(self):
 		"""
 		Return the amount of time passed between the previous and the current render frame.
 		"""
