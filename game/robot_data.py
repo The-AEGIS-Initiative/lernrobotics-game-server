@@ -88,17 +88,17 @@ class RobotData:
 		for object_info in vector2_array:
 			pos = np.fromiter(object_info['position'].values(), dtype=float)
 			name = object_info['name']
-			res += [{'position': pos, 'name': name}]
+			res += [GameObject(pos, name)]
 		return res
 
 class GameObject():
-	def __init__(self, object_data_json):
+	def __init__(self, position, name):
 		# object_data_json has format 
 		# {"position":{"x":0, "y":0}, "name": "example"}
 
 		# Convert {"x":x, "y":y} to and numpy array (x, y)
-		self.position = np.fromiter(object_data_json["position"].values(), dtype=float)
-		self.name = object_data_json["name"]
+		self.position = position
+		self.name = name
 
 	def __repr__(self):
 		return (f"(Position: {self.position}, "
