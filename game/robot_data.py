@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 
 class RobotData:
 	"""
@@ -24,21 +25,14 @@ class RobotData:
 
 
 	"""
-	def __init__(self, position, rotation, forward_dir, right_dir, sensor_array, delta_time):
-		self.position = position
-		self.rotation = rotation
-		self.forward_dir = forward_dir
-		self.right_dir = right_dir
-		self.object_sensor = sensor_array
-		self.delta_time = delta_time
-
 	def __init__(self, json_object):
 		self.position = np.fromiter(json_object["player_position"].values(), dtype = float)
-		self.rotation = json_object["player_heading"]
-		self.forward_dir = np.fromiter(json_object["player_forward"].values(), dtype = float)
-		self.right_dir = np.fromiter(json_object["player_right"].values(), dtype = float)
+		#self.rotation = json_object["player_heading"]
+		#self.forward_dir = np.fromiter(json_object["player_forward"].values(), dtype = float)
+		#self.right_dir = np.fromiter(json_object["player_right"].values(), dtype = float)
 		self.object_sensor = self.formatObjectSensorData(json_object)
 		self.delta_time = json_object["delta_time"]
+		print(sys.getsizeof(self.object_sensor))
 
 	def position(self):
 		"""
@@ -66,11 +60,7 @@ class RobotData:
 		return self.delta_time
 
 	def __repr__(self):
-		return (f"Position: {self.position}\n"
-				f"Rotation: {self.rotation}\n"
-				f"F Dir: {self.forward_dir}\n"
-				f"Right Dir: {self.right_dir}\n"
-				f"ObjectSensor: {self.object_sensor}\n")
+		return (f"Position: {self.position}\n")
 
 	#def formatObjectSensorData(self, json_object):
 	#	detected_objects = json_object["object_sensor_data"]["detected_objects"]
@@ -98,8 +88,8 @@ class GameObject():
 
 		# Convert {"x":x, "y":y} to and numpy array (x, y)
 		self.position = position
-		self.name = name
+		self.type = name
 
 	def __repr__(self):
 		return (f"(Position: {self.position}, "
-				f"Name: {self.name})\n")
+				f"Name: {self.type})\n")
