@@ -52,6 +52,7 @@ class RobotData:
 			i.e. Given any rotation of the robot, 0 degrees refers to the positive vertical axis.
 		"""
 
+		# Round heading to nearest multiple of 5
 		canonical_angle = 5*round(heading/5)
 		canonical_angle = int(canonical_angle % 360 / 5)
 		
