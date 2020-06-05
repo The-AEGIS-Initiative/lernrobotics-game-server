@@ -32,7 +32,7 @@ class RobotData:
 		#self.right_dir = np.fromiter(json_object["player_right"].values(), dtype = float)
 		self.object_sensor = self.formatObjectSensorData(json_object)
 		self.delta_time = json_object["delta_time"]
-		print(sys.getsizeof(self.object_sensor))
+		#print(sys.getsizeof(self.object_sensor))
 
 	def position(self):
 		"""
@@ -51,7 +51,11 @@ class RobotData:
 			Angle representing line of sight measured clockwise from the positive vertical axis.
 			i.e. Given any rotation of the robot, 0 degrees refers to the positive vertical axis.
 		"""
-		return self.object_sensor[heading % 360]
+
+		canonical_angle = 5*round(heading/5)
+		canonical_angle = int(canonical_angle % 360 / 5)
+		
+		return self.object_sensor[canonical_angle]
 
 	def delta_time(self):
 		"""
