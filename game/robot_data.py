@@ -31,7 +31,7 @@ class RobotData:
 		#self.forward_dir = np.fromiter(json_object["player_forward"].values(), dtype = float)
 		#self.right_dir = np.fromiter(json_object["player_right"].values(), dtype = float)
 		self.object_sensor = self.formatObjectSensorData(json_object)
-		self.delta_time = json_object["delta_time"]
+		#self.delta_time = json_object["delta_time"]
 		#print(sys.getsizeof(self.object_sensor))
 
 	def position(self):
@@ -57,12 +57,6 @@ class RobotData:
 		canonical_angle = int(canonical_angle % 360 / 5)
 		
 		return self.object_sensor[canonical_angle]
-
-	def delta_time(self):
-		"""
-		Return the amount of time passed between the previous and the current render frame.
-		"""
-		return self.delta_time
 
 	def __repr__(self):
 		return (f"Position: {self.position}\n")
