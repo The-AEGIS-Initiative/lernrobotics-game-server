@@ -17,4 +17,5 @@ class Robobot(AEGISCore):
 
         Write code here to dynamically control your robot
         """
+        print(self.delta_time)
         self.set_acceleration((0,1))

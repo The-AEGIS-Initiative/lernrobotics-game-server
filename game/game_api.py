@@ -1,7 +1,9 @@
 class AEGISCore:
     x_acceleration = 0
     y_acceleration = 0
+    delta_time=0.03333
     robot_data_history = []
+
     """
     Defines the API available to user when programming robot
 
