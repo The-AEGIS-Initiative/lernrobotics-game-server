@@ -1,7 +1,6 @@
 class AEGISCore:
     x_acceleration = 0
     y_acceleration = 0
-    delta_time=0.03333
     robot_data_history = []
 
     """
@@ -33,3 +32,12 @@ class AEGISCore:
             Desired acceleration. 1 acceleration = 1 units per squared second
         """
         AEGISCore.x_acceleration, AEGISCore.y_acceleration = acceleration
+
+    def position(self):
+        return self.robot_data_history[-1].position
+
+    def delta_time(self):
+        return 0.02
+
+    def sensor(self, heading):
+        return self.robot_data_history[-1].sensor(heading);

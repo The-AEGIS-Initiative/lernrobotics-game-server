@@ -10,6 +10,7 @@ class Robobot(AEGISCore):
         Write initialization code here
         """
         print("Robot Initialized")
+        self.prev_pos = self.position()
 
     def update(self):
         """
@@ -17,5 +18,8 @@ class Robobot(AEGISCore):
 
         Write code here to dynamically control your robot
         """
-        print(self.delta_time)
-        self.set_acceleration((0,1))
+        vel = (self.position() - self.prev_pos)/self.delta_time()
+
+        self.set_acceleration(((0,3) - vel)*3)
+
+        self.prev_pos = self.position()

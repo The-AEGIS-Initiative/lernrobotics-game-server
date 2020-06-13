@@ -63,6 +63,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             try:
                 print("Attempting to start RobobotCore")
                 self.user_robot = Robobot()
+                self.gameFrame = 0
                 print("WebSocket opened")
             except Exception as err:
                 print(traceback.format_exc())
@@ -103,7 +104,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         """
 
         # Add new sensor data to user_robot
-        user_robot.robot_data_history += [game_state]
+        user_robot.robot_data_history = [game_state]
 
 
         # Redirect stdout to Logger object
@@ -112,10 +113,13 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         # Execute user code. 
         # Stdout will be logged to logs variable
         try:
-            if(len(user_robot.robot_data_history)>=3):
-                if(len(user_robot.robot_data_history)==3):
+            if(self.gameFrame>=2):
+                if(self.gameFrame==2):
                     user_robot.start()
+                    self.gameFrame += 1
                 user_robot.update()
+                self.gameFrame += 1
+            self.gameFrame += 1
         except Exception as err:
             print(traceback.format_exc())
             self.write_message(json.dumps({"data": None, "logs": [str(err)]}), binary = True)
