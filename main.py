@@ -113,12 +113,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         # Execute user code. 
         # Stdout will be logged to logs variable
         try:
-            if(self.gameFrame>=2):
-                if(self.gameFrame==2):
-                    user_robot.start()
-                    self.gameFrame += 1
-                user_robot.update()
+            if(self.gameFrame==0):
+                user_robot.start()
                 self.gameFrame += 1
+            user_robot.update()
             self.gameFrame += 1
         except Exception as err:
             print(traceback.format_exc())
