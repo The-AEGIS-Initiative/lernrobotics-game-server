@@ -1,5 +1,6 @@
 from game.game_api import AEGISCore
 import numpy as np
+import time
 
 class Robobot(AEGISCore):
 
@@ -9,8 +10,7 @@ class Robobot(AEGISCore):
 
         Write initialization code here
         """
-        print("Robot Initialized")
-        self.prev_pos = self.position()
+        pass
 
     def update(self):
         """
@@ -18,8 +18,4 @@ class Robobot(AEGISCore):
 
         Write code here to dynamically control your robot
         """
-        vel = (self.position() - self.prev_pos)/self.delta_time()
-
-        self.set_acceleration(((0,3) - vel)*3)
-
-        self.prev_pos = self.position()
+        self.set_acceleration(np.array((0,1)))

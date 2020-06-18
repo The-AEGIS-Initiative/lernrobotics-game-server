@@ -1,6 +1,6 @@
 class AEGISCore:
-    x_acceleration = 0
-    y_acceleration = 0
+    x_acceleration = 0.0
+    y_acceleration = 0.0
     robot_data_history = []
 
     """
@@ -31,7 +31,7 @@ class AEGISCore:
             (x,y) tuple
             Desired acceleration. 1 acceleration = 1 units per squared second
         """
-        AEGISCore.x_acceleration, AEGISCore.y_acceleration = acceleration
+        AEGISCore.x_acceleration, AEGISCore.y_acceleration = float(acceleration[0]), float(acceleration[1])
 
     def position(self):
         return self.robot_data_history[-1].position
