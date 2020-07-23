@@ -17,6 +17,7 @@ else:
     print("using default test code")
 
 # Catch SyntaxError. Store err until it is sent to unity client.
+# This try block for import statement catches errors that occur before executing any code
 syntax_error = ""
 try:
     from game.user_code import Robobot
@@ -83,8 +84,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         ----------
         message : str (binary)
         """
-        
-
         json_string = message.decode("utf-8")
         json_object = json.loads(json_string)
         game_state = RobotData(json_object)
@@ -108,9 +107,24 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         print("WebSocket closed")
 
     def thread_wrapper(self):
-        self.user_robot.main()
+        # Redirect stdout to Logger object
+        sys.stdout = Logger(self.logs)
+
+        # Execute user code. 
+        # Stdout will be logged to logs variable
+        try:
+            self.user_robot.main()
+        except Exception as err:
+            print(traceback.format_exc())
+            self.write_message(json.dumps({"data": None, "logs": [str(err)]}), binary = True)
+            tornado.ioloop.IOLoop.instance().stop()
+
+        
         self.code_finished = True
         AEGISCore.lineno = -1
+
+        # Switch back to terminal logger
+        sys.stdout = self._terminal
 
 
     def get_user_action(self):
@@ -127,22 +141,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         dict
             {"data": {"left": ____ , "right": ____ }}
         """
-
-        # Redirect stdout to Logger object
-        sys.stdout = Logger(self.logs)
+        self.gameFrame += 1
         
-        # Execute user code. 
-        # Stdout will be logged to logs variable
-        try:
-            
-            self.gameFrame += 1
-        except Exception as err:
-            print(traceback.format_exc())
-            self.write_message(json.dumps({"data": None, "logs": [str(err)]}), binary = True)
-            tornado.ioloop.IOLoop.instance().stop()
-
-        # Switch back to terminal logger
-        sys.stdout = self._terminal
 
         # Send data and logs to unity client
         accel = {"left": AEGISCore.x_acceleration, "right": AEGISCore.y_acceleration}
