@@ -2,6 +2,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
+import threading
 import os
 import json
 import sys
@@ -19,6 +20,7 @@ else:
 syntax_error = ""
 try:
     from game.user_code import Robobot
+    from game.game_api import AEGISCore
 except SyntaxError as err:
     print(traceback.format_exc())
     syntax_error = err
@@ -45,6 +47,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     """
     _terminal = sys.stdout
     logs = []
+    
 
     def check_origin(self, origin):
         print("Checking origin")
@@ -64,6 +67,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
                 print("Attempting to start RobobotCore")
                 self.user_robot = Robobot()
                 self.gameFrame = 0
+                self.code_finished = False
                 print("WebSocket opened")
             except Exception as err:
                 print(traceback.format_exc())
@@ -79,16 +83,37 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         ----------
         message : str (binary)
         """
+        
+
         json_string = message.decode("utf-8")
         json_object = json.loads(json_string)
         game_state = RobotData(json_object)
-        self.write_message(json.dumps(self.get_user_action(game_state, self.user_robot)), binary = True)
+       
+        # Add new sensor data to user_robot
+        self.user_robot.robot_data_history = [game_state]
+
+        if(self.gameFrame == 0):
+            self.user_code_thread = threading.Thread(target=self.thread_wrapper)
+            self.user_code_thread.start()
+        self.gameFrame += 1
+        # print("\n")
+        # print("received response from game, triggering receivedResponseEvent")
+        AEGISCore.receivedResponseEvent.set()
+        if(not self.code_finished):
+            AEGISCore.executedCodeEvent.wait()
+            AEGISCore.executedCodeEvent.clear()
+        self.write_message(json.dumps(self.get_user_action()), binary = True)
 
     def on_close(self):
         print("WebSocket closed")
 
+    def thread_wrapper(self):
+        self.user_robot.main()
+        self.code_finished = True
+        AEGISCore.lineno = -1
 
-    def get_user_action(self, game_state, user_robot):
+
+    def get_user_action(self):
         """
         Send new game_state to user_robot and return next action
 
@@ -103,20 +128,13 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             {"data": {"left": ____ , "right": ____ }}
         """
 
-        # Add new sensor data to user_robot
-        user_robot.robot_data_history = [game_state]
-
-
         # Redirect stdout to Logger object
         sys.stdout = Logger(self.logs)
         
         # Execute user code. 
         # Stdout will be logged to logs variable
         try:
-            if(self.gameFrame==0):
-                user_robot.start()
-                self.gameFrame += 1
-            user_robot.update()
+            
             self.gameFrame += 1
         except Exception as err:
             print(traceback.format_exc())
@@ -126,10 +144,11 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         # Switch back to terminal logger
         sys.stdout = self._terminal
 
-
         # Send data and logs to unity client
-        accel = {"left": user_robot.x_acceleration, "right": user_robot.y_acceleration}
-        packet = {"data": accel, "logs": self.logs}
+        accel = {"left": AEGISCore.x_acceleration, "right": AEGISCore.y_acceleration}
+        # print("2. accelerated at (", AEGISCore.x_acceleration,",", AEGISCore.y_acceleration, ") for 0.02 seconds")
+        
+        packet = {"data": accel, "logs": self.logs, "lineno": AEGISCore.lineno}
 
         self.logs = []
         return packet
