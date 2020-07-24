@@ -20,7 +20,7 @@ else:
 # This try block for import statement catches errors that occur before executing any code
 syntax_error = ""
 try:
-    from game.user_code import Robobot
+    from game.user_code import main
     from game.game_api import AEGISCore
 except SyntaxError as err:
     print(traceback.format_exc())
@@ -65,8 +65,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             tornado.ioloop.IOLoop.instance().stop()
         else:
             try:
-                print("Attempting to start RobobotCore")
-                self.user_robot = Robobot()
                 self.gameFrame = 0
                 self.code_finished = False
                 print("WebSocket opened")
@@ -87,13 +85,20 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         json_string = message.decode("utf-8")
         json_object = json.loads(json_string)
         game_state = RobotData(json_object)
-       
+        
         # Add new sensor data to user_robot
-        self.user_robot.robot_data_history = [game_state]
+        AEGISCore.robot_data_history = [game_state]
 
         if(self.gameFrame == 0):
-            self.user_code_thread = threading.Thread(target=self.thread_wrapper)
-            self.user_code_thread.start()
+            print("Attempting to start Robobot")
+            try:
+                self.user_code_thread = threading.Thread(target=self.thread_wrapper)
+                self.user_code_thread.start()
+            except Exception as err:
+                print(traceback.format_exc())
+                self.write_message(json.dumps({"data": None, "logs": [str(err)]}), binary = True)
+                tornado.ioloop.IOLoop.instance().stop()
+                 
         self.gameFrame += 1
         # print("\n")
         # print("received response from game, triggering receivedResponseEvent")
@@ -113,11 +118,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         # Execute user code. 
         # Stdout will be logged to logs variable
         try:
-            self.user_robot.main()
+            main()
         except Exception as err:
+            self.logs += [str(err)]
             print(traceback.format_exc())
-            self.write_message(json.dumps({"data": None, "logs": [str(err)]}), binary = True)
-            tornado.ioloop.IOLoop.instance().stop()
 
         
         self.code_finished = True
