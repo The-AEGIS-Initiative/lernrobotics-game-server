@@ -23,8 +23,13 @@ try:
     from game.user_code import main
     from game.game_api import AEGISCore
 except Exception as err:
-    print(traceback.format_exc())
-    syntax_error = err
+    #print(traceback.format_exc())
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    
+    
+    syntax_error += traceback.format_tb(exc_traceback)[-1]
+    syntax_error += str(err)
+    print(syntax_error)
 
 from game.robot_data import RobotData
 from logger import Logger
@@ -60,12 +65,13 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         if(syntax_error != ""):
-            print("Syntax error!")
+            print("Error!")
             self.write_message(json.dumps({"data": None, "logs": [str(syntax_error)]}), binary = True)
             tornado.ioloop.IOLoop.instance().stop()
         else:
             try:
                 self.gameFrame = 0
+                self.error = False
                 self.code_finished = False
                 print("WebSocket opened")
             except Exception as err:
@@ -118,6 +124,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             #print("executedCodeEvent")
             
         self.write_message(json.dumps(self.get_user_action()), binary = True)
+        if(self.error):
+            tornado.ioloop.IOLoop.instance().stop()
 
     def on_close(self):
         print("WebSocket closed")
@@ -131,9 +139,15 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         try:
             main()
         except Exception as err:
-            self.logs += [str(err)]
-            print(traceback.format_exc())
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            
+            
+            
+            self.logger.logs += [str(traceback.format_tb(exc_traceback)[-1])]
+            self.logger.logs += [str(err)]
 
+            self.error = True
+            AEGISCore.executedCodeEvent.set()
         
         self.code_finished = True
         AEGISCore.lineno = -1
@@ -164,7 +178,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         # print("2. accelerated at (", AEGISCore.x_acceleration,",", AEGISCore.y_acceleration, ") for 0.02 seconds")
         
         packet = {"data": accel, "logs": self.logger.logs, "lineno": AEGISCore.lineno}
-        #print(self.logger.logs)
+        print(self.logger.logs)
         #print("Sending action and logs")
         self.logger.clear()
         #print("Clear logs")
