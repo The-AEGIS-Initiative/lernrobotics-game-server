@@ -22,7 +22,7 @@ syntax_error = ""
 try:
     from game.user_code import main
     from game.game_api import AEGISCore
-except SyntaxError as err:
+except Exception as err:
     print(traceback.format_exc())
     syntax_error = err
 
