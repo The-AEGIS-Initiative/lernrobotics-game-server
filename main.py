@@ -145,7 +145,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
                 tb = re.search( r"line.*", tb_raw).group(0)
             else:
                 tb = tb_raw
-            self.logger.logs += [str(tb)]
+            self.logger.logs += [str(tb)+"\n"]
             self.logger.logs += [str(err)]
 
             self.error = True
