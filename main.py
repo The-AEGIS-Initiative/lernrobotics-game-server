@@ -64,7 +64,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         if(syntax_error != ""):
-            print("Error!")
+            print("Error importing user code!")
             self.write_message(json.dumps({"data": None, "logs": [str(syntax_error)]}), binary = True)
             tornado.ioloop.IOLoop.instance().stop()
         else:
