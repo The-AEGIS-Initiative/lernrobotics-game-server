@@ -7,9 +7,9 @@ import os
 import json
 import sys
 import traceback
+import re
 
 # Save user code to file
-
 if('code' in os.environ.keys()):
     with open("./game/user_code.py", 'w') as f:
         f.write(os.environ['code'])
@@ -141,9 +141,12 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         except Exception as err:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             
-            
-            
-            self.logger.logs += [str(traceback.format_tb(exc_traceback)[-1])]
+            tb_raw = traceback.format_tb(exc_traceback)[-1]
+            if(re.search( r"line.*", tb_raw)):
+                tb = re.search( r"line.*", tb_raw).group(0)
+            else:
+                tb = tb_raw
+            self.logger.logs += [str(tb)]
             self.logger.logs += [str(err)]
 
             self.error = True
@@ -178,7 +181,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         # print("2. accelerated at (", AEGISCore.x_acceleration,",", AEGISCore.y_acceleration, ") for 0.02 seconds")
         
         packet = {"data": accel, "logs": self.logger.logs, "lineno": AEGISCore.lineno}
-        print(self.logger.logs)
+        #print(self.logger.logs)
         #print("Sending action and logs")
         self.logger.clear()
         #print("Clear logs")
