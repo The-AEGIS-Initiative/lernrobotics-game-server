@@ -139,15 +139,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             main()
         except Exception as err:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            
-            tb_raw = traceback.format_tb(exc_traceback)[-1]
-            if(re.search( r"line.*", tb_raw)):
-                tb = re.search( r"line.*", tb_raw).group(0)
-            else:
-                tb = tb_raw
+            tb_raw = traceback.format_exc()
+            tb = [re.sub(r"File .*?,\s", "", str(line))+"\n" for line in tb_raw.split("\n")]
+                
             self.logger.logs += [str(tb)+"\n"]
-            self.logger.logs += [str(err)]
-
             self.error = True
             AEGISCore.executedCodeEvent.set()
         
