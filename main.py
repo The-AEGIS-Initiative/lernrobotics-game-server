@@ -27,7 +27,7 @@ except Exception as err:
     exc_type, exc_value, exc_traceback = sys.exc_info()
     
     if(re.search(r"cannot import name 'main' from 'game.user_code'.*", str(err))):
-        syntax_error += "Your code is missing a main function! \nPlease ensure your code contains a main function:\n  def main():\n    ..."
+        syntax_error += "Your code is missing a main function! \nPlease ensure your code contains a main function:\n\tdef main():\n\t\t..."
     print(syntax_error)
 
 from game.robot_data import RobotData
