@@ -28,17 +28,22 @@ def set_thrusters(thrusters, duration=20):
     """
 
     while(duration > 0):
-        # print("Pausing code execution until a response is received")
+        _set_acceleration(thrusters)
+        #print("1. New acceleration set")
+
+        #print("executedCodeEvent")
+        AEGISCore.executedCodeEvent.set() # Trigger executed Code Event
         AEGISCore.lineno = get_line_num()
+
+        #print("Waiting for receivedResponseEvent")
         AEGISCore.receivedResponseEvent.wait()
         AEGISCore.receivedResponseEvent.clear()
-            
-        # print("Continuing code execution")
+        #print("receivedResponseEvent")
 
-        _set_acceleration(thrusters)
-        # print("1. New acceleration set")
-        AEGISCore.executedCodeEvent.set() # Trigger executed Code Event
+        
 
+        
+        
         duration -= 20
 
 def _set_acceleration(acceleration):

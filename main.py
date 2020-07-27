@@ -93,23 +93,30 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         else:
             AEGISCore.robot_data_history += [game_state]
 
+        
+        #print("\n")
+        #print("received response from game, triggering receivedResponseEvent")
+        AEGISCore.receivedResponseEvent.set()
+
         if(self.gameFrame == 0):
             print("Attempting to start Robobot")
             try:
+                AEGISCore.receivedResponseEvent.clear()
                 self.user_code_thread = threading.Thread(target=self.thread_wrapper)
                 self.user_code_thread.start()
             except Exception as err:
                 print(traceback.format_exc())
                 self.write_message(json.dumps({"data": None, "logs": [str(err)]}), binary = True)
                 tornado.ioloop.IOLoop.instance().stop()
-                 
+
         self.gameFrame += 1
-        # print("\n")
-        # print("received response from game, triggering receivedResponseEvent")
-        AEGISCore.receivedResponseEvent.set()
+        
         if(not self.code_finished):
+            #print("Wait for executedCode event")
             AEGISCore.executedCodeEvent.wait()
             AEGISCore.executedCodeEvent.clear()
+            #print("executedCodeEvent")
+            
         self.write_message(json.dumps(self.get_user_action()), binary = True)
 
     def on_close(self):
@@ -118,7 +125,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def thread_wrapper(self):
         # Redirect stdout to Logger object
         sys.stdout = Logger(self.logs)
-
+        self.logger = sys.stdout
         # Execute user code. 
         # Stdout will be logged to logs variable
         try:
@@ -156,9 +163,11 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         accel = {"left": AEGISCore.x_acceleration, "right": AEGISCore.y_acceleration}
         # print("2. accelerated at (", AEGISCore.x_acceleration,",", AEGISCore.y_acceleration, ") for 0.02 seconds")
         
-        packet = {"data": accel, "logs": self.logs, "lineno": AEGISCore.lineno}
-
-        self.logs = []
+        packet = {"data": accel, "logs": self.logger.logs, "lineno": AEGISCore.lineno}
+        #print(self.logger.logs)
+        #print("Sending action and logs")
+        self.logger.clear()
+        #print("Clear logs")
         return packet
 
 
