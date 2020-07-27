@@ -53,10 +53,25 @@ def _set_acceleration(acceleration):
         (x,y) tuple
         Desired acceleration. 1 acceleration = 1 units per squared second
     """
-    AEGISCore.x_acceleration, AEGISCore.y_acceleration = float(acceleration[0]), float(acceleration[1])
+    AEGISCore.x_acceleration, AEGISCore.y_acceleration = float(acceleration[0])*30/255, float(acceleration[1])*30/255
 
 def get_position():
-    return AEGISCore.robot_data_history[-1].position
+    return AEGISCore.robot_data_history[-1].position # return current position
+
+def get_prev_position():
+    if(len(AEGISCore.robot_data_history) < 2):
+        return AEGISCore.robot_data_history[-1].position # If no prev position, return current position
+
+    return AEGISCore.robot_data_history[-2].position # Return prev position
+
+def get_prev_prev_position():
+    if(len(AEGISCore.robot_data_history) == 1): # If no prev position, return current position
+        return AEGISCore.robot_data_history[-1].position
+    if(len(AEGISCore.robot_data_history) == 2): # If no prev prev position, return prev position
+        return AEGISCore.robot_data_history[-2].position
+
+    return AEGISCore.robot_data_history[-3].position # return prev prev position
+        
 
 def delta_time():
     return 0.02

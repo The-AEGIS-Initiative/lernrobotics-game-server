@@ -87,7 +87,11 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         game_state = RobotData(json_object)
         
         # Add new sensor data to user_robot
-        AEGISCore.robot_data_history = [game_state]
+        if(len(AEGISCore.robot_data_history) >= 3):
+            AEGISCore.robot_data_history.pop(0)
+            AEGISCore.robot_data_history += [game_state]
+        else:
+            AEGISCore.robot_data_history += [game_state]
 
         if(self.gameFrame == 0):
             print("Attempting to start Robobot")
