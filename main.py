@@ -178,7 +178,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         # Send data and logs to unity client
         accel = {"left": AEGISCore.x_acceleration, "right": AEGISCore.y_acceleration}
         # print("2. accelerated at (", AEGISCore.x_acceleration,",", AEGISCore.y_acceleration, ") for 0.02 seconds")
-        print("Sending action")
+        #print("Sending action")
         packet = {"data": accel, "logs": self.logger.logs, "lineno": AEGISCore.lineno}
         #print(self.logger.logs)
         #print("Sending action and logs")
