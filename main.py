@@ -22,7 +22,7 @@ syntax_error = ""
 try:
     from game.game_api import AEGISCore
 except Exception as err:
-    syntax_error += traceback.format_exc()
+    syntax_error += re.sub(r"File.*?, ", "", traceback.format_exc())
     print(syntax_error)
 
 try:
@@ -30,7 +30,7 @@ try:
 except Exception as err: 
     if(re.search(r"cannot import name 'main' from 'game.user_code'.*", str(traceback.format_exc()))):
         syntax_error += "Your code is missing a main function! \nPlease ensure your code contains a main function:\n\tdef main():\n\t\t..."
-    syntax_error += traceback.format_exc()
+    syntax_error += re.sub(r"File.*?, ", "", traceback.format_exc())
     print(syntax_error)
 
 from game.robot_data import RobotData
