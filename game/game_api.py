@@ -11,7 +11,7 @@ class AEGISCore():
     executedCodeEvent = threading.Event()
     lineno = 0;
 
-def set_thrusters(thrusters, duration=20):
+def set_thrusters(thrusters, duration=0.02):
     """
     Exposed API function
 
