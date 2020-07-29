@@ -24,7 +24,7 @@ def set_thrusters(thrusters, duration=20):
         Applies a force of (x, y) to robot
     duration
         int
-        thruster duration in milliseconds (ms)
+        thruster duration in seconds (s)
     """
 
     while(duration > 0):
@@ -44,7 +44,7 @@ def set_thrusters(thrusters, duration=20):
 
         
         
-        duration -= 20
+        duration -= 0.02
 
 def _set_acceleration(acceleration):
     """
@@ -78,7 +78,7 @@ def get_prev_prev_position():
     return AEGISCore.robot_data_history[-3].position # return prev prev position
         
 
-def delta_time():
+def get_delta_time():
     return 0.02
 
 def get_sensor(heading):

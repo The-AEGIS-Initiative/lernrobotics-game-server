@@ -3,8 +3,7 @@ import numpy as np
 import time
 
 def main():
-    move_to((-2.5, 2.5))
-    move_to((4.5, 2.5))
+    set_thrusters((0,100), 100)
 
 def move_to(target_pos):
     delta_time = 0.02
