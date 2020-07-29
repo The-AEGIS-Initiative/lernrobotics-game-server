@@ -20,14 +20,17 @@ else:
 # This try block for import statement catches errors that occur before executing any code
 syntax_error = ""
 try:
-    from game.user_code import main
     from game.game_api import AEGISCore
 except Exception as err:
-    #print(traceback.format_exc())
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-    
-    if(re.search(r"cannot import name 'main' from 'game.user_code'.*", str(err))):
+    syntax_error += traceback.format_exc()
+    print(syntax_error)
+
+try:
+    from game.user_code import main
+except Exception as err: 
+    if(re.search(r"cannot import name 'main' from 'game.user_code'.*", str(traceback.format_exc()))):
         syntax_error += "Your code is missing a main function! \nPlease ensure your code contains a main function:\n\tdef main():\n\t\t..."
+    syntax_error += traceback.format_exc()
     print(syntax_error)
 
 from game.robot_data import RobotData
@@ -100,7 +103,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
         
         #print("\n")
-        #print("received response from game, triggering receivedResponseEvent")
+        print("received response from game, triggering receivedResponseEvent")
         AEGISCore.receivedResponseEvent.set()
 
         if(self.gameFrame == 0):
@@ -135,7 +138,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         try:
             main()
         except Exception as err:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
             tb_raw = traceback.format_exc()
             tb = [re.sub(r"File .*?,\s", "", str(line))+"\n" for line in tb_raw.split("\n")]
                 
