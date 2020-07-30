@@ -103,7 +103,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
         
         #print("\n")
-        print("received response from game, triggering receivedResponseEvent")
+        #print("received response from game, triggering receivedResponseEvent")
         AEGISCore.receivedResponseEvent.set()
 
         if(self.gameFrame == 0):
